@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
+// todo: see if we can avoid reset flicker on schema id change
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { buildZodSchema } from '../../lib/buildZodSchema'
