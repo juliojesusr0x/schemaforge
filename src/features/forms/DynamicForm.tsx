@@ -107,6 +107,7 @@ export function DynamicForm({ schema, onSubmit, onValuesChange }: DynamicFormPro
         <Button
           type="button"
           variant="secondary"
+          aria-label="Reset form to defaults"
           onClick={() => reset(buildDefaultValues(schema))}
         >
           Reset
