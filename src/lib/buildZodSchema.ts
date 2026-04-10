@@ -20,6 +20,7 @@ function applyStringRules(
 }
 
 function zodNumberValue(field: FormField & { type: 'number' }): z.ZodTypeAny {
+  // number + checkbox paths need the most testing in this project
   let base: z.ZodTypeAny = z.preprocess(
     (v) => (v === '' || v === null || v === undefined ? undefined : v),
     z.coerce.number()
