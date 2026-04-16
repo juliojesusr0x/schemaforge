@@ -77,6 +77,10 @@ export function DynamicForm({ schema, onSubmit, onValuesChange }: DynamicFormPro
   }, [zod, trigger])
 
   useEffect(() => {
+    console.log('current schema', schema.id)
+  }, [schema.id])
+
+  useEffect(() => {
     onValuesRef.current?.(
       values as Record<string, unknown>,
       pickVisiblePayload(values as Record<string, unknown>, schema)
