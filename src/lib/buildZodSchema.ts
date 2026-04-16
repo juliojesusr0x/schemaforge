@@ -133,7 +133,7 @@ export function buildZodSchema(schema: FormSchema) {
       if (!res.success) {
         for (const iss of res.error.issues) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: [f.name, ...iss.path],
             message: iss.message,
           })
