@@ -1,5 +1,6 @@
 import type { FormSchema } from '../../types/form'
 
+/** demo scenarios for the playground */
 export const employeeOnboardingSchema: FormSchema = {
   id: 'employee',
   title: 'Employee onboarding',
@@ -70,7 +71,7 @@ export const billingAddressSchema: FormSchema = {
         {
           type: 'pattern',
           value: '^[\\d]{3}\\.?[\\d]{3}\\.?\\d{3}-?\\d{2}$|^[\\d]{11}$',
-          message: 'Cpf format looks not right',
+          message: 'CPF format looks not right',
         },
       ],
     },
