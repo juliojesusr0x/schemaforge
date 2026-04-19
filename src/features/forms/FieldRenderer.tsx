@@ -96,6 +96,7 @@ export function FieldRenderer<T extends FieldValues>({
         </div>
       )
     case 'checkbox':
+      // RHF: valueAsBoolean is important here for z.literal(true) on required boxes
       return (
         <Checkbox
           id={id}
