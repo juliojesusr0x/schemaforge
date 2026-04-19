@@ -78,7 +78,7 @@ export default function App() {
 
         <section className="space-y-4">
           <div>
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Visible values</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Form output (visible fields only)</h2>
             <pre className="mt-2 max-h-48 overflow-auto rounded-md border border-zinc-200 bg-zinc-950 p-3 font-mono text-xs text-zinc-100 dark:border-zinc-700">
               {jsonStringify(visiblePreview)}
             </pre>
