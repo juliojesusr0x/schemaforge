@@ -1,5 +1,7 @@
 import type { FormField, ShowWhen } from '../types/form'
 
+/** showWhen is flat on purpose — no mini language in v1 */
+
 function matchesCondition(showWhen: ShowWhen, value: unknown): boolean {
   if ('equals' in showWhen) return value === showWhen.equals
   if ('notEquals' in showWhen) return value !== showWhen.notEquals
