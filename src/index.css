@@ -24,6 +24,11 @@ body {
   @apply min-h-screen;
 }
 
+/* small fix: keep long lines in pre from touching edge on mobile */
+pre {
+  word-break: break-word;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --surface: 9 9 11;
