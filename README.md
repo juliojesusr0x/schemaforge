@@ -44,6 +44,160 @@ For each `FormField` we have a `fieldToZod` that return a zod for only that valu
 - Storing the schema in a URL or in local storage for quick sharing.
 - Field groups / steps (wizard) on top of the same structure.
 
+## Usability
+
+- **Keyboard and a11y**: every field render a real `<label htmlFor>` + native input, so `Tab` work as expected. Errors are show with `role="alert"` and linked by `aria-errormessage` on inputs. Required fields get a red `*` in the label so the user know before try to submit.
+- **Feedback in real time**: the form runs in `mode: 'onChange'`, so the submit button stay disabled until the form is valid. A small line bellow shows "Form valid" or "Form still has errors or empty required fields.".
+- **Reset**: the secondary button `Reset` put the form back to the schema default values, useful when you are playing with the playground or when the user pick a wrong sample.
+- **Conditional fields**: when `showWhen` hide a field, the value is also drop from the submit payload (we use RHF `shouldUnregister: true`), so you don’t send a `cpf` to the backend when the country is `us`, for example.
+- **Live JSON preview** on the right side: you can see **visible values**, **all form state** and the **last submit payload** — useful to debug rules and to show in interviews what the engine is doing.
+- **Schema picker** (left side): switch between three sample forms without reload; on each switch the form is reset to that schema defaults.
+
+## Examples
+
+### 1) Minimal login-ish form
+
+```ts
+import type { FormSchema } from './src/types/form'
+
+export const loginSchema: FormSchema = {
+  id: 'login',
+  title: 'Login',
+  fields: [
+    { name: 'email', type: 'email', label: 'Email', required: true, placeholder: 'you@example.com' },
+    {
+      name: 'password',
+      type: 'text',
+      label: 'Password',
+      required: true,
+      validation: [
+        { type: 'minLength', value: 8, message: 'At least 8 caracters' },
+      ],
+    },
+    { name: 'remember', type: 'checkbox', label: 'Remember me', defaultValue: false },
+  ],
+  submitLabel: 'Sign in',
+}
+```
+
+### 2) Conditional fields (country drives local ID)
+
+```ts
+export const billingSchema: FormSchema = {
+  id: 'billing',
+  title: 'Billing',
+  fields: [
+    {
+      name: 'country',
+      type: 'select',
+      label: 'Country',
+      required: true,
+      defaultValue: 'br',
+      options: [
+        { value: 'br', label: 'Brazil' },
+        { value: 'us', label: 'United States' },
+      ],
+    },
+    {
+      name: 'cpf',
+      type: 'text',
+      label: 'CPF',
+      required: true,
+      showWhen: { field: 'country', equals: 'br' },
+      validation: [
+        {
+          type: 'pattern',
+          value: '^\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}$|^\\d{11}$',
+          message: 'CPF format looks not right',
+        },
+      ],
+    },
+    {
+      name: 'ssn',
+      type: 'text',
+      label: 'SSN / Tax ID',
+      required: true,
+      showWhen: { field: 'country', equals: 'us' },
+    },
+  ],
+}
+```
+
+When `country` is `br`, only `cpf` render; when `us`, only `ssn`. The hidden one is **not validated** and **not part of the submitted payload**.
+
+### 3) Multiple branches with `in`
+
+```ts
+{
+  name: 'salary',
+  type: 'number',
+  label: 'Annual salary (USD)',
+  required: true,
+  showWhen: { field: 'employmentType', in: ['fulltime', 'parttime'] },
+  validation: [{ type: 'min', value: 1, message: 'Must be a positive value' }],
+}
+```
+
+Also supports `notEquals`:
+
+```ts
+{ name: 'companyName', type: 'text', label: 'Company', showWhen: { field: 'employmentType', notEquals: 'student' } }
+```
+
+### 4) Optional text + textarea
+
+```ts
+{ name: 'displayName', type: 'text', label: 'Display name' }, // optional, any string
+{ name: 'bio', type: 'textarea', label: 'A little about you', placeholder: 'Optional' },
+```
+
+Empty string and `undefined` are both accepted for optional fields; validation only runs when the user actually type something.
+
+### 5) Required checkbox (accept terms)
+
+```ts
+{
+  name: 'acceptTerms',
+  type: 'checkbox',
+  label: 'I accept the terms and privacy policy.',
+  required: true,
+  defaultValue: false,
+}
+```
+
+This compiles to `z.literal(true)`, so only `true` pass; the submit button stay disabled until the user check it.
+
+### 6) Rendering the form
+
+```tsx
+import { DynamicForm } from './src/features/forms/DynamicForm'
+import { loginSchema } from './schemas/login'
+
+export function LoginPage() {
+  return (
+    <DynamicForm
+      schema={loginSchema}
+      onSubmit={(data) => {
+        // data already contains only visible keys, numbers are already numbers
+        // and checkbox are real booleans
+        console.log('payload', data)
+      }}
+      onValuesChange={(all, visible) => {
+        // live preview / analytics / autosave
+      }}
+    />
+  )
+}
+```
+
+### 7) Adding a new field type (quick idea)
+
+1. Extend the `FormField` union in [`src/types/form.ts`](src/types/form.ts) with the new variant (e.g. `date`).
+2. Add the render branch in [`src/features/forms/FieldRenderer.tsx`](src/features/forms/FieldRenderer.tsx).
+3. Add the Zod branch in [`src/lib/buildZodSchema.ts`](src/lib/buildZodSchema.ts) inside `fieldToZod`.
+
+Three files, one field type — this is the main reason to go schema-driven.
+
 ## Run locally
 
 ```bash
